@@ -47,16 +47,15 @@ exports.makeUppercase = functions.firestore
   return snap.ref.set({ uppercase }, { merge: true });
 });
 
-exports.getUppercase = functions.firestore
-.document("/messages/{documentId}")
-.onUpdate((change, context) => {
-  const beforeData = change.before.data();
-  const afterData = change.after.data();
-  /*
-  functions.logger.log("this is the before data: ", beforeData);
-  functions.logger.log("this is the after data: ", afterData);
-  functions.logger.log("this is the uppercase word: ", afterData.uppercase);
-  */
 
+// exports.getUppercase = functions.firestore
+// .document("/messages/{documentId}")
+// .onUpdate((change, context) => {
+//   const beforeData = change.before.data();
+//   const afterData = change.after.data();
   
-});
+//   functions.logger.log("this is the before data: ", beforeData);
+//   functions.logger.log("this is the after data: ", afterData);
+//   functions.logger.log("this is the uppercase word: ", afterData.uppercase);
+  
+// });

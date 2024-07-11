@@ -1,9 +1,15 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { functions } from './firebase';
 import { httpsCallable } from 'firebase/functions';
+import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 
-const addMessage = httpsCallable(functions, 'addMessage'); // Call your Cloud Function
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+// Call your Cloud Function
+const addMessage = httpsCallable(functions, 'addMessage');
+const getUppercase = httpsCallable(functions, 'getUppercase');
 
 function App() {
   // useState is a hook (like a digital sticky note) which creates two state variables that we can update
@@ -26,6 +32,31 @@ function App() {
       console.log(inputValue); 
       console.log('Response from Cloud Function:', result.data);
       setInputValue(''); // Clear input field
+      ////////////
+
+      /*useEffect(() => {
+        const docRef = doc(db, 'updates', 'latestUpdate');
+        
+        const unsubscribe = onSnapshot(docRef, (doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
+            setUppercaseValue(data.uppercaseValue);
+            console.log('Received uppercase value from Firestore:', data.uppercaseValue);
+          } else {
+            console.log('No such document!');
+          }
+        }, (error) => {
+          console.error('Error fetching document:', error);
+        });
+    
+        // Clean up the listener on unmount
+        return () => unsubscribe();
+      }, [db]);
+      */
+      // const uppercasedResult = await getUppercase({ text: inputValue });
+
+
+
     } catch (error) {
       console.error('Error sending data to Cloud Function:', error);
     }
