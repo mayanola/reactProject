@@ -10,24 +10,7 @@ admin.initializeApp();
 // Firestore under the path /messages/:documentId/original
 exports.addMessage = functions.https.onRequest(async (req, res) => {
   cors(req, res, async() => {
-   /* res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'GET, POST');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');*/
-
-    /*try {
-      // Grab the text parameter.
-      const original = req.query.text;
-      // Push the new message into Firestore using the Firebase Admin SDK.
-      const writeResult = await admin
-        .firestore()
-        .collection("messages")
-        .add({ original: original });
-      // Send back a message that we've successfully written the message
-        res.status(200).json({ result: `Message with ID: ${writeResult.id} added.`}); 
-    } catch (error) {
-        res.status(500).send(error);
-    }*/
-
+  
    // Grab the text parameter.
    try {
     const original = req.body.data.text;
@@ -64,3 +47,16 @@ exports.makeUppercase = functions.firestore
   return snap.ref.set({ uppercase }, { merge: true });
 });
 
+exports.getUppercase = functions.firestore
+.document("/messages/{documentId}")
+.onUpdate((change, context) => {
+  const beforeData = change.before.data();
+  const afterData = change.after.data();
+  /*
+  functions.logger.log("this is the before data: ", beforeData);
+  functions.logger.log("this is the after data: ", afterData);
+  functions.logger.log("this is the uppercase word: ", afterData.uppercase);
+  */
+
+  
+});

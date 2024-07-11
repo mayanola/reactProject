@@ -30,15 +30,6 @@ function App() {
       console.error('Error sending data to Cloud Function:', error);
     }
 
-
-    /*try {
-      const addMessage = httpsCallable(functions, 'addMessage'); // Call your Cloud Function
-      const result = await addMessage({ text: inputValue });
-      console.log('Response from Cloud Function:', result.data);
-      setInputValue(''); // Clear input field
-    } catch (error) {
-      console.error('Error sending data to Cloud Function:', error);
-    }*/
   };
 
 
