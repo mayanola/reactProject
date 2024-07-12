@@ -3,13 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { functions } from './firebase';
 import { httpsCallable } from 'firebase/functions';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// const db = getFirestore(app);
 // Call your Cloud Function
 const addMessage = httpsCallable(functions, 'addMessage');
-const getUppercase = httpsCallable(functions, 'getUppercase');
 
 function App() {
   // useState is a hook (like a digital sticky note) which creates two state variables that we can update
@@ -29,9 +26,12 @@ function App() {
   
       const result = await addMessage({ text: inputValue });
   
-      console.log(inputValue); 
       console.log('Response from Cloud Function:', result.data);
-      setInputValue(''); // Clear input field
+      //setInputValue(''); // Clear input field
+
+      const displayText = result.data.uppercase;
+      setInputValue(displayText);
+
       ////////////
 
       /*useEffect(() => {

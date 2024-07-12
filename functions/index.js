@@ -16,12 +16,29 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
     const original = req.body.data.text;
 
    // Push the new message into Firestore using the Firebase Admin SDK.
+   // writeResult consists of the following info: docId, path, parent, reference to database
    const writeResult = await admin
      .firestore()
      .collection("messages")
      .add({ original: original || null});
-   // Send back a message that we've successfully written the message
-     res.status(200).json({ result: `Message with ID: ${writeResult.id} added.`}); 
+
+
+  // Send back a message that we've successfully written the message
+    // need to get back the uppercase field from the document in db
+    
+    const docSnapshot = await writeResult.get();
+    if (docSnapshot.exists) {
+      const uppercaseField = docSnapshot.data().uppercase;
+    } else {
+      functions.logger.log("This document doesn't exist")
+    }
+
+    functions.logger.log("uppercase thingy: ", uppercaseField);
+
+    res.status(200).json({ 
+      result: `Message with ID: ${writeResult.id} added.`,
+      uppercase: uppercaseField
+    }); 
    } catch (error) {
       res.status(500).send(error);
    }
