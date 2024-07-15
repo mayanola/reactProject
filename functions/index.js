@@ -6,44 +6,59 @@ const cors = require('cors')({ origin: true });
 const admin = require("firebase-admin");
 admin.initializeApp();
 
-// Take the text parameter passed to this HTTP endpoint and insert it into
-// Firestore under the path /messages/:documentId/original
+const systemMessage = {
+  "role": "system",
+  "content": "Explain all concepts like you are a pirate."
+}
+
 exports.addMessage = functions.https.onRequest(async (req, res) => {
   cors(req, res, async() => {
-  
-   // Grab the text parameter.
-   try {
-    const original = req.body.data.text;
-
-   // Push the new message into Firestore using the Firebase Admin SDK.
-   // writeResult consists of the following info: docId, path, parent, reference to database
-   const writeResult = await admin
-     .firestore()
-     .collection("messages")
-     .add({ original: original || null});
-
-
-  // Send back a message that we've successfully written the message
-    // need to get back the uppercase field from the document in db
+    chatMessages = req.body.data.text;
+    functions.logger.log(chatMessages);
+    // functions.logger.log(req.body.text);
+    // functions.logger.log(req);
     
-    const docSnapshot = await writeResult.get();
-    if (docSnapshot.exists) {
-      const uppercaseField = docSnapshot.data().uppercase;
-    } else {
-      functions.logger.log("This document doesn't exist")
+    let apiMessages = chatMessages.map((messageObject) => {
+      let role="";
+      if(messageObject.sender === "ChatGPT") {
+        role="assistant"
+      } else {
+        role="user"
+      }
+      return {role:role, content:messageObject.message}
+    });
+
+    functions.logger.log(apiMessages);
+
+    
+    const apiRequestBody = {
+      "model": "gpt-3.5-turbo",
+      "messages": [
+        systemMessage,
+        ...apiMessages
+      ]
     }
 
-    functions.logger.log("uppercase thingy: ", uppercaseField);
-
-    res.status(200).json({ 
-      result: `Message with ID: ${writeResult.id} added.`,
-      uppercase: uppercaseField
-    }); 
-   } catch (error) {
-      res.status(500).send(error);
-   }
+    await fetch("https://api.openai.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + API_KEY,
+        "Content-Type": "application/json" // sending json in body of request
+      },
+      body: JSON.stringify(apiRequestBody)
+    }).then((data) => {
+      //data = data.choices[0].message.content;
+      functions.logger.log("the data is: ", data);
+      //functions.logger.log(data.choices[0].message.content);
+      //functions.logger.log(data.jsonPayload.choices[0].message.content);
+    }).then((data) => {
+      res.status(200).json({result: "data"});
+    });
   });
 });
+
+
 
 // Listens for new messages added to /messages/:documentId/original and creates an
 // uppercase version of the message to /messages/:documentId/uppercase
@@ -63,16 +78,3 @@ exports.makeUppercase = functions.firestore
   // Setting an 'uppercase' field in Firestore document returns a Promise.
   return snap.ref.set({ uppercase }, { merge: true });
 });
-
-
-// exports.getUppercase = functions.firestore
-// .document("/messages/{documentId}")
-// .onUpdate((change, context) => {
-//   const beforeData = change.before.data();
-//   const afterData = change.after.data();
-  
-//   functions.logger.log("this is the before data: ", beforeData);
-//   functions.logger.log("this is the after data: ", afterData);
-//   functions.logger.log("this is the uppercase word: ", afterData.uppercase);
-  
-// });
