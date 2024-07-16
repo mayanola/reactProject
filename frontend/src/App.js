@@ -37,8 +37,11 @@ function App() {
     // call backend addMessage, passing in messageObject
     const result = await addMessage({ text: chatMessages });
 
+    console.log(result);
+    console.log("this is the api response: ", result.data);
+
     setMessages([...chatMessages, {
-      message: result,
+      message: result.data,
       sender: "ChatGPT",
       direction: "incoming"
     }]);
