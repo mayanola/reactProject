@@ -8,6 +8,7 @@ import { MainContainer, ChatContainer, MessageList, Message, MessageInput, Typin
 // const db = getFirestore(app);
 // Call your Cloud Function
 const addMessage = httpsCallable(functions, 'addMessage');
+const addAPIRequest = httpsCallable(functions, 'addAPIRequest');
 
 function App() {
   const [messages, setMessages] = useState([
@@ -30,6 +31,9 @@ function App() {
 
     const newMessages = [...messages, newMessage];
     setIsTyping(true);
+    const resultID = await addAPIRequest({ text: message });
+    console.log(resultID);
+
     await sendMessage(newMessages);
   };
 
